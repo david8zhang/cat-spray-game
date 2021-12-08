@@ -10,6 +10,7 @@ export class Preloader extends Phaser.Scene {
     this.load.image('spray-bottle', 'spray-bottle.png')
     this.load.audio('music', 'bgm.mp3')
     this.load.audio('spray', 'spray.mp3')
+    this.load.audio('boom', 'boom.mp3')
   }
 
   create() {

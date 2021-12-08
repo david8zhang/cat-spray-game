@@ -34,6 +34,7 @@ export class Spawner {
   }
 
   spawnEnemy() {
+    this.scene.sound.play('boom')
     const randX = Utils.getRandomNum(100, Constants.GAME_WIDTH - 100)
     const cat = new Cat(this.scene, randX, this.scene.tableSprite.y + 50)
     this.scene.tweens.add({
