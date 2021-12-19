@@ -5,6 +5,16 @@ export class Cat {
   private scene: Game
   public sprite: Phaser.GameObjects.Sprite
   public eatingEvent: Phaser.Time.TimerEvent | undefined
+  public petCount: number = 0
+  public currState: string = 'UNDER_TABLE'
+  public stateTransitionEvent: Phaser.Time.TimerEvent
+  public stateSpriteMapping = {
+    UNDER_TABLE: 'henny',
+    ON_TABLE: 'henny',
+    EATING: 'cat-eating',
+  }
+  public isPetting: boolean = false
+  public static REQUIRED_PET_COUNT = 3
 
   constructor(scene: Game, x: number, y: number) {
     this.scene = scene
@@ -15,30 +25,56 @@ export class Cat {
       .setInteractive()
 
     this.sprite.on('pointerup', () => {
-      // this.scene.sound.play('spray')
-      this.sprite.destroy()
+      this.scene.player.useItem(this)
     })
 
-    this.scene.time.delayedCall(1000, () => {
+    this.stateTransitionEvent = this.scene.time.delayedCall(1000, () => {
       this.getOnTable()
     })
   }
 
   destroy() {
     this.sprite.destroy()
-    if (this.eatingEvent) {
-      this.eatingEvent.destroy()
+    if (this.stateTransitionEvent) {
+      this.stateTransitionEvent.remove(false)
+      this.stateTransitionEvent.destroy()
     }
+  }
+
+  pet() {
+    this.petCount++
+    if (this.petCount == Cat.REQUIRED_PET_COUNT) {
+      this.sprite.clearTint()
+      this.sprite.setTexture('cat-pet')
+      this.sprite.setScale(0.25)
+      this.stateTransitionEvent.paused = true
+      this.scene.time.delayedCall(500, () => {
+        this.destroy()
+      })
+    } else {
+      const tints = [0xa4fba6, 0x30cb00]
+      this.sprite.setTint(tints[this.petCount - 1])
+    }
+  }
+
+  getSprayed() {
+    this.stateTransitionEvent.paused = true
+    this.sprite.setTexture('cat-screaming')
+    this.sprite.setScale(0.2)
+    this.scene.time.delayedCall(500, () => {
+      this.destroy()
+    })
   }
 
   getOnTable() {
     if (this.sprite && this.sprite.active) {
+      this.currState = 'ON_TABLE'
       this.scene.tweens.add({
         targets: [this.sprite],
         y: `-=50`,
         duration: 100,
       })
-      this.scene.time.delayedCall(1000, () => {
+      this.stateTransitionEvent = this.scene.time.delayedCall(1000, () => {
         this.eatFood()
       })
     }
@@ -46,6 +82,7 @@ export class Cat {
 
   eatFood() {
     if (this.sprite && this.sprite.active) {
+      this.currState = 'EATING'
       const foodSprite = this.scene.foodPlate.foodSprite
       const isLeft = this.sprite.x - foodSprite.x < 0
       this.sprite.setTexture('cat-eating')
@@ -65,11 +102,11 @@ export class Cat {
       const randXPos = Utils.getRandomNum(interval.start, interval.end)
       this.sprite.setPosition(randXPos, randYPos)
 
-      const eatingEvent = this.scene.time.addEvent({
+      this.stateTransitionEvent = this.scene.time.addEvent({
         loop: true,
         delay: 500,
         callback: () => {
-          this.scene.foodPlate.loseHealth(10)
+          this.scene.foodPlate.loseHealth(1)
         },
       })
     }
