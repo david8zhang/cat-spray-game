@@ -14,6 +14,7 @@ export class Preloader extends Phaser.Scene {
     this.load.image('cat-pet', 'cat-pet.png')
     this.load.image('cat-screaming', 'screaming-cat.jpeg')
     this.load.image('mouse-toy', 'mouse-toy.png')
+    this.load.image('water-drop', 'water-drop.png')
 
     // Audio
     this.load.audio('music', 'cat-spray-bgm.mp3')

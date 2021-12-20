@@ -80,6 +80,8 @@ export class Cat {
     }
   }
 
+  playWithToy() {}
+
   eatFood() {
     if (this.sprite && this.sprite.active) {
       this.currState = 'EATING'
