@@ -6,7 +6,7 @@ import { Cat } from './Cat'
 export class Spawner {
   private scene: Game
   private enemies: Phaser.GameObjects.Group
-  private maxEnemiesOnScreen = 10
+  private maxEnemiesOnScreen = 1
   private spawnEvent: Phaser.Time.TimerEvent
 
   constructor(scene: Game) {
@@ -25,7 +25,7 @@ export class Spawner {
       this.spawnEnemy()
     }
     this.spawnEvent.reset({
-      delay: Phaser.Math.Between(500, 2000),
+      delay: Phaser.Math.Between(500, 2500),
       callback: () => {
         this.onEvent()
       },

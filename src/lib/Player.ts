@@ -13,6 +13,7 @@ export class Player {
   public toySprites: Phaser.GameObjects.Sprite[] = []
 
   public rechargeWaterEvent!: Phaser.Time.TimerEvent
+  public rechargeToysEvent!: Phaser.Time.TimerEvent
 
   constructor(scene: Game) {
     this.scene = scene
@@ -44,10 +45,21 @@ export class Player {
       },
     })
     this.rechargeWaterEvent.paused = true
+
+    this.rechargeToysEvent = this.scene.time.addEvent({
+      loop: true,
+      delay: 1500,
+      callback: () => {
+        this.numToys++
+        this.numToys = Math.min(this.numToys, Constants.MAX_TOYS)
+        this.updateItemUI()
+      },
+    })
+    this.rechargeToysEvent.paused = true
   }
 
   initItemUI() {
-    let xPos = Constants.GAME_WIDTH - 200
+    let xPos = Constants.GAME_WIDTH - 300
     const yPos = 25
     for (let i = 0; i < Constants.MAX_WATER_AMOUNT; i++) {
       const sprite = this.scene.add
@@ -56,11 +68,26 @@ export class Player {
       this.waterDropSprites.push(sprite)
       xPos += sprite.displayWidth
     }
+    xPos += 50
+    for (let i = 0; i < Constants.MAX_TOYS; i++) {
+      const sprite = this.scene.add
+        .sprite(xPos, yPos, 'mouse-toy')
+        .setScale(0.05)
+      this.toySprites.push(sprite)
+      xPos += sprite.displayWidth
+    }
   }
 
   updateItemUI() {
     this.waterDropSprites.forEach((sprite, index) => {
       if (index + 1 <= this.waterAmount) {
+        sprite.clearTint()
+      } else {
+        sprite.setTint(0x555555)
+      }
+    })
+    this.toySprites.forEach((sprite, index) => {
+      if (index + 1 <= this.numToys) {
         sprite.clearTint()
       } else {
         sprite.setTint(0x555555)
@@ -79,12 +106,13 @@ export class Player {
   useItem(cat: Cat) {
     switch (this.currItemKey) {
       case 'SPRAY_BOTTLE': {
-        cat.getSprayed()
-        this.waterAmount--
-        this.updateItemUI()
-        if (this.waterAmount == 0) {
-          this.switchItem('HAND')
-        }
+        cat.getSprayed(() => {
+          this.waterAmount--
+          this.updateItemUI()
+          if (this.waterAmount == 0) {
+            this.switchItem('HAND')
+          }
+        })
         break
       }
       case 'HAND': {
@@ -92,7 +120,13 @@ export class Player {
         break
       }
       case 'TOY': {
-        cat.playWithToy()
+        cat.playWithToy(() => {
+          this.numToys--
+          this.updateItemUI()
+          if (this.numToys === 0) {
+            this.switchItem('HAND')
+          }
+        })
         break
       }
     }
@@ -110,14 +144,17 @@ export class Player {
           return
         }
         this.rechargeWaterEvent.paused = true
+        this.rechargeToysEvent.paused = false
         break
       }
       case 'HAND': {
         this.rechargeWaterEvent.paused = false
+        this.rechargeToysEvent.paused = false
         break
       }
       case 'TOY': {
         this.rechargeWaterEvent.paused = false
+        this.rechargeToysEvent.paused = true
         break
       }
     }
