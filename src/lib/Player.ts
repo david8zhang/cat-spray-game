@@ -11,6 +11,7 @@ export class Player {
   public numToys: number = Constants.MAX_TOYS
   public waterDropSprites: Phaser.GameObjects.Sprite[] = []
   public toySprites: Phaser.GameObjects.Sprite[] = []
+  public toyAOEHighlight?: Phaser.GameObjects.Arc
 
   public rechargeWaterEvent!: Phaser.Time.TimerEvent
   public rechargeToysEvent!: Phaser.Time.TimerEvent
@@ -30,7 +31,7 @@ export class Player {
         itemConfig.texture
       )
       .setScale(itemConfig.scale)
-      .setDepth(1)
+      .setDepth(10)
 
     this.rechargeWaterEvent = this.scene.time.addEvent({
       loop: true,
@@ -101,6 +102,29 @@ export class Player {
       this.scene.input.mousePointer.x + itemConfig.x,
       this.scene.input.mousePointer.y + itemConfig.y
     )
+    this.addAdditionalItemUI(itemConfig)
+  }
+
+  // Add highlights for AOE items and such
+  addAdditionalItemUI(itemConfig: any) {
+    if (this.currItemKey === 'TOY') {
+      const mousePointer = this.scene.input.mousePointer
+      if (!this.toyAOEHighlight) {
+        this.toyAOEHighlight = this.scene.add
+          .circle(mousePointer.x + itemConfig.x, mousePointer.y + itemConfig.y)
+          .setFillStyle(0x0000ff, 0.5)
+          .setDepth(this.currItem.depth - 1)
+      } else {
+        this.toyAOEHighlight.setPosition(
+          mousePointer.x + itemConfig.x,
+          mousePointer.y + itemConfig.y
+        )
+      }
+    } else {
+      if (this.toyAOEHighlight) {
+        this.toyAOEHighlight.setVisible(false)
+      }
+    }
   }
 
   useItem(cat: Cat) {
@@ -155,6 +179,8 @@ export class Player {
       case 'TOY': {
         this.rechargeWaterEvent.paused = false
         this.rechargeToysEvent.paused = true
+        if (!this.toyAOEHighlight) {
+        }
         break
       }
     }
