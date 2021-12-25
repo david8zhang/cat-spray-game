@@ -5,8 +5,8 @@ import { Cat } from './Cat'
 
 export class Spawner {
   private scene: Game
-  private enemies: Phaser.GameObjects.Group
-  private maxEnemiesOnScreen = 1
+  public enemies: Phaser.GameObjects.Group
+  private maxEnemiesOnScreen = 5
   private spawnEvent: Phaser.Time.TimerEvent
 
   constructor(scene: Game) {
@@ -43,5 +43,12 @@ export class Spawner {
       duration: 100,
     })
     this.enemies.add(cat.sprite)
+  }
+
+  update() {
+    this.enemies.children.entries.forEach((entry) => {
+      const cat = entry.getData('ref') as Cat
+      cat.update()
+    })
   }
 }

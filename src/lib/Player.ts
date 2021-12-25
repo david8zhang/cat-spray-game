@@ -4,14 +4,14 @@ import { Cat } from './Cat'
 
 export class Player {
   private scene: Game
-  private currItem!: Phaser.GameObjects.Sprite
+  public currItem!: Phaser.Physics.Arcade.Sprite
   private currItemKey: string = 'HAND'
 
   public waterAmount: number = Constants.MAX_WATER_AMOUNT
   public numToys: number = Constants.MAX_TOYS
   public waterDropSprites: Phaser.GameObjects.Sprite[] = []
   public toySprites: Phaser.GameObjects.Sprite[] = []
-  public toyAOEHighlight?: Phaser.GameObjects.Arc
+  public aoeHighlight?: Phaser.GameObjects.Arc
 
   public rechargeWaterEvent!: Phaser.Time.TimerEvent
   public rechargeToysEvent!: Phaser.Time.TimerEvent
@@ -24,7 +24,7 @@ export class Player {
 
   initItem() {
     const itemConfig = Constants.ITEM_SPRITE_CONFIGS[this.currItemKey]
-    this.currItem = this.scene.add
+    this.currItem = this.scene.physics.add
       .sprite(
         this.scene.input.mousePointer.x + itemConfig.x,
         this.scene.input.mousePointer.y + itemConfig.y,
@@ -33,30 +33,10 @@ export class Player {
       .setScale(itemConfig.scale)
       .setDepth(10)
 
-    this.rechargeWaterEvent = this.scene.time.addEvent({
-      loop: true,
-      delay: 1500,
-      callback: () => {
-        this.waterAmount++
-        this.waterAmount = Math.min(
-          this.waterAmount,
-          Constants.MAX_WATER_AMOUNT
-        )
-        this.updateItemUI()
-      },
-    })
-    this.rechargeWaterEvent.paused = true
-
-    this.rechargeToysEvent = this.scene.time.addEvent({
-      loop: true,
-      delay: 1500,
-      callback: () => {
-        this.numToys++
-        this.numToys = Math.min(this.numToys, Constants.MAX_TOYS)
-        this.updateItemUI()
-      },
-    })
-    this.rechargeToysEvent.paused = true
+    this.scene.physics.world.enableBody(
+      this.currItem,
+      Phaser.Physics.Arcade.DYNAMIC_BODY
+    )
   }
 
   initItemUI() {
@@ -109,50 +89,121 @@ export class Player {
   addAdditionalItemUI(itemConfig: any) {
     if (this.currItemKey === 'TOY') {
       const mousePointer = this.scene.input.mousePointer
-      if (!this.toyAOEHighlight) {
-        this.toyAOEHighlight = this.scene.add
+      if (!this.aoeHighlight) {
+        this.aoeHighlight = this.scene.add
           .circle(mousePointer.x + itemConfig.x, mousePointer.y + itemConfig.y)
           .setFillStyle(0x0000ff, 0.5)
           .setDepth(this.currItem.depth - 1)
       } else {
-        this.toyAOEHighlight.setPosition(
+        this.aoeHighlight.setPosition(
           mousePointer.x + itemConfig.x,
           mousePointer.y + itemConfig.y
         )
+        this.aoeHighlight.setVisible(true)
       }
     } else {
-      if (this.toyAOEHighlight) {
-        this.toyAOEHighlight.setVisible(false)
+      if (this.aoeHighlight) {
+        this.aoeHighlight.setVisible(false)
       }
     }
   }
 
-  useItem(cat: Cat) {
+  getAffectedCats(isAOE: boolean) {
+    const enemiesGroup = this.scene.spawner.enemies
+    const affectedCats: Cat[] = []
+    enemiesGroup.children.entries.forEach((child) => {
+      const cat = child.getData('ref') as Cat
+      if (isAOE && cat.isOverlappingAOE) {
+        affectedCats.push(cat)
+      } else if (cat.isOverlappingItem) {
+        affectedCats.push(cat)
+      }
+    })
+    return affectedCats
+  }
+
+  useItem() {
     switch (this.currItemKey) {
       case 'SPRAY_BOTTLE': {
-        cat.getSprayed(() => {
+        const affectedCats = this.getAffectedCats(false)
+        let catsSprayed = 0
+        affectedCats.forEach((cat) => {
+          if (!cat.isSpraying) {
+            cat.getSprayed()
+            catsSprayed++
+          }
+        })
+        if (catsSprayed > 0) {
           this.waterAmount--
           this.updateItemUI()
           if (this.waterAmount == 0) {
             this.switchItem('HAND')
           }
-        })
+        }
         break
       }
       case 'HAND': {
-        cat.pet()
+        const affectedCats = this.getAffectedCats(false)
+        affectedCats.forEach((cat) => {
+          cat.pet()
+        })
         break
       }
       case 'TOY': {
-        cat.playWithToy(() => {
+        const affectedCats = this.getAffectedCats(true)
+        let catsDistracted = 0
+        affectedCats.forEach((cat) => {
+          if (!cat.isPlayingWithToy) {
+            cat.playWithToy()
+            catsDistracted++
+          }
+        })
+        if (catsDistracted > 0) {
           this.numToys--
           this.updateItemUI()
           if (this.numToys === 0) {
             this.switchItem('HAND')
           }
-        })
+        }
         break
       }
+    }
+  }
+
+  createRechargeWaterEvent() {
+    const config = {
+      loop: true,
+      delay: 1500,
+      callback: () => {
+        this.waterAmount++
+        this.waterAmount = Math.min(
+          this.waterAmount,
+          Constants.MAX_WATER_AMOUNT
+        )
+        this.updateItemUI()
+      },
+    }
+    if (!this.rechargeWaterEvent) {
+      this.rechargeWaterEvent = this.scene.time.addEvent(config)
+    } else {
+      this.rechargeWaterEvent.reset(config)
+    }
+  }
+
+  createRechargeToyEvent() {
+    const config = {
+      loop: true,
+      delay: 1500,
+      callback: () => {
+        this.numToys++
+        this.numToys = Math.min(this.numToys, Constants.MAX_TOYS)
+        this.updateItemUI()
+      },
+    }
+    if (!this.rechargeToysEvent) {
+      this.rechargeToysEvent = this.scene.time.addEvent(config)
+    } else {
+      this.rechargeToysEvent.reset(config)
     }
   }
 
@@ -161,30 +212,36 @@ export class Player {
       return
     }
     const itemConfig = Constants.ITEM_SPRITE_CONFIGS[itemName]
-    this.currItemKey = itemName
+    const changeItem = () => {
+      this.currItemKey = itemName
+      this.currItem.setScale(itemConfig.scale)
+      this.currItem.setTexture(itemConfig.texture)
+    }
     switch (itemName) {
       case 'SPRAY_BOTTLE': {
         if (this.waterAmount === 0) {
           return
         }
-        this.rechargeWaterEvent.paused = true
-        this.rechargeToysEvent.paused = false
+        changeItem()
+        this.rechargeWaterEvent.destroy()
+        this.createRechargeToyEvent()
         break
       }
       case 'HAND': {
-        this.rechargeWaterEvent.paused = false
-        this.rechargeToysEvent.paused = false
+        changeItem()
+        this.createRechargeWaterEvent()
+        this.createRechargeToyEvent()
         break
       }
       case 'TOY': {
-        this.rechargeWaterEvent.paused = false
-        this.rechargeToysEvent.paused = true
-        if (!this.toyAOEHighlight) {
+        if (this.numToys == 0) {
+          return
         }
+        changeItem()
+        this.createRechargeWaterEvent()
+        this.rechargeToysEvent.destroy()
         break
       }
     }
-    this.currItem.setScale(itemConfig.scale)
-    this.currItem.setTexture(itemConfig.texture)
   }
 }

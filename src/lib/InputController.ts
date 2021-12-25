@@ -5,6 +5,13 @@ export class InputController {
   constructor(scene: Game) {
     this.scene = scene
     this.listenKeyPresses()
+    this.listenMouseClick()
+  }
+
+  listenMouseClick() {
+    this.scene.input.on('pointerup', () => {
+      this.scene.player.useItem()
+    })
   }
 
   listenKeyPresses() {

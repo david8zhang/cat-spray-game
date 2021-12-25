@@ -30,5 +30,6 @@ export default class Game extends Phaser.Scene {
 
   update() {
     this.player.update()
+    this.spawner.update()
   }
 }

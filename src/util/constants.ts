@@ -3,7 +3,7 @@ export class Constants {
   public static GAME_HEIGHT = 600
   public static SPRITE_SCALE = 2
   public static MAX_WATER_AMOUNT = 3
-  public static MAX_TOYS = 5
+  public static MAX_TOYS = 2
 
   public static ITEM_SPRITE_CONFIGS = {
     SPRAY_BOTTLE: {
