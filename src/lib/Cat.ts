@@ -46,6 +46,7 @@ export class Cat {
       this.stateTransitionEvent.remove(false)
       this.stateTransitionEvent.destroy()
     }
+    this.scene.score.increaseScore(1)
   }
 
   pet() {

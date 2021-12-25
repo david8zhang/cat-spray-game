@@ -8,6 +8,10 @@ export class Spawner {
   public enemies: Phaser.GameObjects.Group
   private maxEnemiesOnScreen = 5
   private spawnEvent: Phaser.Time.TimerEvent
+  public spawnInterval = {
+    start: 500,
+    end: 2500,
+  }
 
   constructor(scene: Game) {
     this.scene = scene
@@ -18,6 +22,13 @@ export class Spawner {
         this.onEvent()
       },
     })
+    this.scene.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        this.adjustSpawnBasedOnScore()
+      },
+      loop: true,
+    })
   }
 
   onEvent() {
@@ -25,12 +36,25 @@ export class Spawner {
       this.spawnEnemy()
     }
     this.spawnEvent.reset({
-      delay: Phaser.Math.Between(500, 2500),
+      delay: Phaser.Math.Between(
+        this.spawnInterval.start,
+        this.spawnInterval.end
+      ),
       callback: () => {
         this.onEvent()
       },
       repeat: 1,
     })
+  }
+
+  adjustSpawnBasedOnScore() {
+    // Adjust time range and spawn rate based on current score
+    const currScore = this.scene.score.getScore()
+    const endTimeRange =
+      Constants.INITIAL_SPAWN_INTERVAL.end - Math.floor(currScore / 10) * 200
+    this.spawnInterval.end = Math.max(500, endTimeRange)
+    this.maxEnemiesOnScreen =
+      Constants.INITIAL_MAX_ENEMIES_ON_SCREEN + Math.floor(currScore / 10)
   }
 
   spawnEnemy() {

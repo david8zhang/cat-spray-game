@@ -15,6 +15,9 @@ export default class GameOver extends Phaser.Scene {
   }
 
   create(): void {
+    document
+      .getElementById('phaser')
+      ?.setAttribute('style', 'cursor: auto;background: #1b1d20;')
     this.cameras.main.fadeIn(2000, 1, 1, 1)
 
     const bg = this.add.image(

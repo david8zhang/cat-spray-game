@@ -223,7 +223,7 @@ export class Player {
           return
         }
         changeItem()
-        this.rechargeWaterEvent.destroy()
+        if (this.rechargeWaterEvent) this.rechargeWaterEvent.destroy()
         this.createRechargeToyEvent()
         break
       }
@@ -239,7 +239,7 @@ export class Player {
         }
         changeItem()
         this.createRechargeWaterEvent()
-        this.rechargeToysEvent.destroy()
+        if (this.rechargeToysEvent) this.rechargeToysEvent.destroy()
         break
       }
     }

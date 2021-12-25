@@ -5,6 +5,13 @@ export class Constants {
   public static MAX_WATER_AMOUNT = 3
   public static MAX_TOYS = 2
 
+  public static INITIAL_SPAWN_INTERVAL = {
+    start: 500,
+    end: 2500,
+  }
+
+  public static INITIAL_MAX_ENEMIES_ON_SCREEN = 5
+
   public static ITEM_SPRITE_CONFIGS = {
     SPRAY_BOTTLE: {
       x: 10,
