@@ -21,6 +21,8 @@ export class Cat {
   public isOverlappingItem: boolean = false
   public isOverlappingAOE: boolean = false
 
+  public delayedCalls: Phaser.Time.TimerEvent[] = []
+
   constructor(scene: Game, x: number, y: number) {
     this.scene = scene
     this.sprite = this.scene.physics.add
@@ -49,21 +51,29 @@ export class Cat {
     this.scene.score.increaseScore(1)
   }
 
+  delayedDestroy(delayedTime: number) {
+    this.resetBody()
+    this.stateTransitionEvent.paused = true
+    this.delayedCalls.forEach((call) => (call.paused = true))
+    this.scene.time.delayedCall(delayedTime, () => {
+      this.destroy()
+    })
+  }
+
   pet() {
     if (this.isSpraying) {
       return
     }
     this.petCount++
     if (this.petCount == Cat.REQUIRED_PET_COUNT) {
+      // Show sprite for when the cat has been successfully pet
       this.hasBeenPet = true
       this.sprite.clearTint()
       this.sprite.setTexture('cat-pet')
       this.sprite.setScale(0.25)
-      this.resetBody()
-      this.stateTransitionEvent.paused = true
-      this.scene.time.delayedCall(500, () => {
-        this.destroy()
-      })
+
+      // Destroy cat after delay
+      this.delayedDestroy(500)
     } else {
       const tints = [0xa4fba6, 0x30cb00]
       this.sprite.setTint(tints[this.petCount - 1])
@@ -72,15 +82,15 @@ export class Cat {
 
   getSprayed(onSprayCallback?: Function) {
     if (!this.isSpraying && !this.hasBeenPet) {
+      // Show sprite for when cat gets sprayed
       this.isSpraying = true
       this.stateTransitionEvent.paused = true
       this.sprite.setTexture('cat-screaming')
       this.sprite.setScale(0.2)
-      this.resetBody()
       if (onSprayCallback) onSprayCallback()
-      this.scene.time.delayedCall(500, () => {
-        this.destroy()
-      })
+
+      // Destroy cat after some delay
+      this.delayedDestroy(500)
     }
   }
 
@@ -107,7 +117,10 @@ export class Cat {
       this.sprite.setScale(0.2)
       this.resetBody()
       if (callback) callback()
-      this.scene.time.delayedCall(1500, () => {
+
+      // Create a new delayed call and add it to an array (to be destroyed so that it can't fire while
+      // the cat is in the middle of being destroyed)
+      const delayedCall = this.scene.time.delayedCall(1500, () => {
         this.isPlayingWithToy = false
         if (this.sprite && this.sprite.active) {
           this.sprite.setScale(oldScale)
@@ -115,6 +128,7 @@ export class Cat {
           this.stateTransitionEvent.paused = false
         }
       })
+      this.delayedCalls.push(delayedCall)
     }
   }
 

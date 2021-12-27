@@ -61,7 +61,19 @@ export default class GameOver extends Phaser.Scene {
         this.scene.start('game')
       })
 
+    const scoreText = text(`Your score: ${this.score}`, {
+      fontSize: '20px',
+      color: 'red',
+      fontWeight: 'bolder',
+      '-webkit-text-stroke-width': '2px',
+      '-webkit-text-stroke-color': 'black',
+    }) as HTMLElement
+    const scoreTextDom = this.add
+      .dom(this.scale.width / 2, this.scale.height / 5 + 64, scoreText)
+      .setOrigin(0.5)
+
     domElementsContainer.add(gameOverTextDom)
+    domElementsContainer.add(scoreTextDom)
     domElementsContainer.add(restartButtonDom)
     domElementsContainer.setAlpha(0)
     this.time.delayedCall(2000, () => {

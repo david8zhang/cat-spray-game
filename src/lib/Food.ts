@@ -31,7 +31,9 @@ export class Food {
       this.scene.cameras.main.once(
         Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
         () => {
-          this.scene.scene.start('gameover')
+          this.scene.scene.start('gameover', {
+            score: this.scene.score.getScore(),
+          })
         }
       )
     })
