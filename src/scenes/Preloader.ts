@@ -23,6 +23,7 @@ export default class Preloader extends Phaser.Scene {
 
     // BG
     this.load.image('game-over', 'bg/gameover.jpg')
+    this.load.image('start', 'bg/start.jpg')
 
     // Audio
     this.load.audio('music', 'audio/cat-spray-bgm.mp3')

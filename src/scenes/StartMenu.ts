@@ -9,7 +9,7 @@ export default class StartMenu extends Phaser.Scene {
 
   create(): void {
     const domElementsContainer = this.add.container(0, 0)
-    this.cameras.main.setBackgroundColor(Constants.BG_COLOR)
+    this.cameras.main.setBackgroundColor('#e67e22')
     const titleScreenText = text('Cat Attack', {
       fontSize: '80px',
       fontFamily: 'Adelia',
