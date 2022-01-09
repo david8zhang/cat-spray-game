@@ -24,7 +24,6 @@ export default class Game extends Phaser.Scene {
       ?.setAttribute('style', 'cursor: none;background: #caba79;')
 
     // this.sound.play('music', { loop: true })
-
     this.player = new Player(this)
     this.spawner = new Spawner(this)
     this.score = new Score(this)
