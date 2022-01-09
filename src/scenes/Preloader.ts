@@ -1,29 +1,36 @@
-export class Preloader extends Phaser.Scene {
+export default class Preloader extends Phaser.Scene {
   constructor() {
     super('preload')
   }
 
   preload() {
-    this.load.image('table', 'table.png')
-    this.load.image('salmon-plate', 'salmon-plate.png')
-    this.load.image('henny', 'henny.jpeg')
-    this.load.image('spray-bottle', 'spray-bottle.png')
-    this.load.image('cat-eating', 'cat-eating.jpeg')
-    this.load.image('game-over', 'gameover.png')
-    this.load.image('hand', 'hand.png')
-    this.load.image('cat-pet', 'cat-pet.png')
-    this.load.image('cat-screaming', 'screaming-cat.jpeg')
-    this.load.image('mouse-toy', 'mouse-toy.png')
-    this.load.image('water-drop', 'water-drop.png')
-    this.load.image('cat-playing', 'cat-playing.jpeg')
+    // Environment
+    this.load.image('table', 'environment/table.png')
+    this.load.image('salmon-plate', 'environment/salmon-plate.png')
+
+    // Cats
+    this.load.image('henny', 'cats/henny.jpeg')
+    this.load.image('cat-eating', 'cats/cat-eating.jpeg')
+    this.load.image('cat-pet', 'cats/cat-pet.png')
+    this.load.image('cat-playing', 'cats/cat-playing.jpeg')
+    this.load.image('cat-screaming', 'cats/screaming-cat.jpeg')
+
+    // Items
+    this.load.image('spray-bottle', 'items/spray-bottle.png')
+    this.load.image('hand', 'items/hand.png')
+    this.load.image('mouse-toy', 'items/mouse-toy.png')
+    this.load.image('water-drop', 'items/water-drop.png')
+
+    // BG
+    this.load.image('game-over', 'bg/gameover.jpg')
 
     // Audio
-    this.load.audio('music', 'cat-spray-bgm.mp3')
-    this.load.audio('spray', 'spray.mp3')
-    this.load.audio('boom', 'boom.mp3')
+    this.load.audio('music', 'audio/cat-spray-bgm.mp3')
+    this.load.audio('spray', 'audio/spray.mp3')
+    this.load.audio('boom', 'audio/boom.mp3')
   }
 
   create() {
-    this.scene.start('game')
+    this.scene.start('start')
   }
 }

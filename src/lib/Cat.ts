@@ -29,7 +29,6 @@ export class Cat {
       .sprite(x, y, 'henny')
       .setScale(0.1)
       .setDepth(-1)
-      .setInteractive()
       .setData('ref', this)
 
     this.scene.physics.world.enableBody(

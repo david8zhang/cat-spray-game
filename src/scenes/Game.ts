@@ -24,10 +24,11 @@ export default class Game extends Phaser.Scene {
       ?.setAttribute('style', 'cursor: none;background: #caba79;')
 
     // this.sound.play('music', { loop: true })
+
     this.player = new Player(this)
     this.spawner = new Spawner(this)
     this.score = new Score(this)
-    this.cameras.main.setBackgroundColor('#f2de8c')
+    this.cameras.main.setBackgroundColor(Constants.BG_COLOR)
     this.tableSprite = this.add
       .sprite(Constants.GAME_WIDTH / 2, Constants.GAME_HEIGHT / 2 + 45, 'table')
       .setScale(6, 4)

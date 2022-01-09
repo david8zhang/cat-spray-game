@@ -1,4 +1,6 @@
 export class Constants {
+  public static BG_COLOR = '#f2de8c'
+  public static FONT_NAME = 'Sweet-Saturday'
   public static GAME_WIDTH = 800
   public static GAME_HEIGHT = 600
   public static SPRITE_SCALE = 2
@@ -31,5 +33,11 @@ export class Constants {
       scale: 0.15,
       texture: 'mouse-toy',
     },
+  }
+  public static isBrowser(browserType): boolean {
+    console.log(navigator.userAgent)
+    return (
+      navigator.userAgent.toLowerCase().indexOf(browserType.toLowerCase()) != -1
+    )
   }
 }

@@ -33,7 +33,7 @@ export class Healthbar {
     this.position = healthbarConfig.position
 
     this.bar = new Phaser.GameObjects.Graphics(this.scene)
-    this.bar.setDepth(1000)
+    this.bar.setDepth(100)
     this.scene.add.existing(this.bar)
     this.draw()
   }

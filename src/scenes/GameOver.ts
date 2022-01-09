@@ -25,25 +25,27 @@ export default class GameOver extends Phaser.Scene {
       Constants.GAME_HEIGHT / 2,
       'game-over'
     )
-
-    bg.setScale(Constants.SPRITE_SCALE)
+    let scaleX = this.cameras.main.width / bg.width
+    let scaleY = this.cameras.main.height / bg.height
+    bg.setScale(scaleX, scaleY)
 
     const domElementsContainer = this.add.container(0, 0)
 
     const gameOverText = text('GAME OVER', {
-      fontSize: '40px',
+      fontSize: '60px',
       color: 'red',
       fontWeight: 'bolder',
-      '-webkit-text-stroke-width': '2px',
+      '-webkit-text-stroke-width': '1px',
       '-webkit-text-stroke-color': 'black',
     }) as HTMLElement
 
     const gameOverTextDom = this.add
-      .dom(this.scale.width / 2, this.scale.height / 5, gameOverText)
+      .dom(this.scale.width / 2, this.scale.height / 6, gameOverText)
       .setOrigin(0.5)
 
     const restartButton = button('Play Again', {
-      fontSize: '12px',
+      fontSize: '20px',
+      fontFamily: Constants.FONT_NAME,
       color: 'black',
       width: 150,
       height: 40,
@@ -62,10 +64,10 @@ export default class GameOver extends Phaser.Scene {
       })
 
     const scoreText = text(`Your score: ${this.score}`, {
-      fontSize: '20px',
+      fontSize: '30px',
       color: 'red',
       fontWeight: 'bolder',
-      '-webkit-text-stroke-width': '2px',
+      '-webkit-text-stroke-width': '1px',
       '-webkit-text-stroke-color': 'black',
     }) as HTMLElement
     const scoreTextDom = this.add
